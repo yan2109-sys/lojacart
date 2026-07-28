@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  DELIVERED
+  CANCELED
+  REFUNDED
+}
+
+enum DeliveryStatus {
+  PENDING
+  SCHEDULED
+  EXECUTED
+  FAILED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+model StoreSettings {
+  id                Int      @id @default(1)
+  storeName         String   @default("Minha Loja FiveM")
+  slogan            String   @default("VIP, veículos e benefícios para sua cidade")
+  logoUrl           String?
+  primaryColor      String   @default("#2563eb")
+  serverName        String   @default("Sua Cidade RP")
+  discordUrl        String?
+  apiSecret         String   @unique
+  pixKey            String?
+  pixBeneficiary    String?
+  adminPasswordHash String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String    @default("Package")
+  position    Int       @default(0)
+  enabled     Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  slug          String      @unique
+  description   String
+  price         Float
+  imageUrl      String?
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  enabled       Boolean     @default(true)
+  stock         Int?
+  command       String      @default("notify")
+  commandArgs   String      @default("[]")
+  spawnModel    String?
+  deliveryType  String      @default("custom")
+  expiryDays    Int?
+  position      Int         @default(0)
+  featured      Boolean     @default(false)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([categoryId])
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  internalId       String      @unique @default(cuid())
+  clientEmail      String
+  clientName       String?
+  clientIdentifier String
+  clientDiscord    String?
+  status           OrderStatus @default(PENDING)
+  gateway          String      @default("PIX")
+  total            Float
+  pixCopyPaste     String?
+  paidAt           DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  items            OrderItem[]
+  deliveries       Delivery[]
+
+  @@index([status])
+  @@index([clientIdentifier])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product @relation(fields: [productId], references: [id])
+  name          String
+  price         Float
+  quantity      Int     @default(1)
+  command       String
+  commandArgs   String
+
+  @@index([orderId])
+}
+
+model Delivery {
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  clientIdentifier String
+  command          String
+  args             String
+  status           DeliveryStatus @default(PENDING)
+  result           String?
+  executedAt       DateTime?
+  createdAt        DateTime       @default(now())
+
+  @@index([status])
+  @@index([clientIdentifier])
+}
+
+model Withdrawal {
+  id          String           @id @default(cuid())
+  amount      Float
+  pixKey      String
+  status      WithdrawalStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime         @default(now())
+  completedAt DateTime?
+
+  @@index([status])
+  @@index([createdAt])
+}

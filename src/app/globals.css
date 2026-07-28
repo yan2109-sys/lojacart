@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #1e3a5f;
+  --card: #18181b;
+  --surface: #111113;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.gradient-hero {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(37, 99, 235, 0.18), transparent),
+    var(--background);
+}
+
+.store-gradient {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(37, 99, 235, 0.12), transparent),
+    var(--surface);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
