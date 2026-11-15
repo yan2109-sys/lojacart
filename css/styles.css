@@ -212,10 +212,12 @@ p {
   .nav__menu {
     position: static;
     inset: auto;
+    z-index: auto;
     background: transparent;
     flex-direction: row;
     gap: 1.75rem;
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
     transform: none;
   }
